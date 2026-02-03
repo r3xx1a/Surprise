@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For Zuzi (Mango)</title>
+    <style>
+        /* --- GLOBAL STYLES --- */
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; font-family: 'Poppins', 'Segoe UI', Tahoma, sans-serif; }
+        
+        body {
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            background: #000;
+            color: #fff;
+            transition: background 3s ease-in-out;
+        }
+
+        /* --- ENHANCED PINK AESTHETIC --- */
+        body.pink-mode {
+            background: linear-gradient(135deg, #ffafbd 0%, #ffc3a0 100%);
+            color: #d63384;
+        }
+
+        /* ROBOTIC FACTORY AESTHETIC */
+        body.factory-mode {
+            background-color: #fff0f3;
+            background-image: 
+                radial-gradient(#ffccd5 2px, transparent 2px), 
+                linear-gradient(90deg, rgba(255,182,193,0.1) 1px, transparent 1px),
+                linear-gradient(rgba(255,182,193,0.1) 1px, transparent 1px);
+            background-size: 40px 40px, 100px 100px, 100px 100px;
+            color: #ff69b4;
+        }
+
+        .heart-particle {
+            position: absolute;
+            color: rgba(255, 105, 180, 0.6);
+            font-size: 20px;
+            pointer-events: none;
+            z-index: 0;
+            animation: floatUp 6s linear infinite;
+            opacity: 0;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(110vh) rotate(0deg); opacity: 0; }
+            20% { opacity: 0.8; }
+            100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+        }
+
+        .nebula-bg {
+            content: ""; position: absolute; width: 200%; height: 200%;
+            background: radial-gradient(circle at 50% 50%, rgba(255, 20, 147, 0.1) 0%, transparent 50%);
+            animation: nebulaMove 25s infinite alternate; z-index: 0; pointer-events: none;
+        }
+        @keyframes nebulaMove { 0% { transform: translate(-25%, -25%); } 100% { transform: translate(10%, 10%); } }
+
+        .stars-container { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: transparent url('https://s3-us-west-2.amazonaws.com/s.cdpn.io/1231630/stars.png') repeat;
+            z-index: 1; opacity: 0.5; pointer-events: none; 
+        }
+
+        #gleam-sky {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #050510; display: none; z-index: 50; overflow: hidden;
+        }
+        .gleam-star {
+            position: absolute; background: white; border-radius: 50%; opacity: 0.5;
+            animation: gleamMove 10s linear infinite, twinkle 2s ease-in-out infinite;
+        }
+        @keyframes gleamMove { from { transform: translateX(0); } to { transform: translateX(100px); } }
+        @keyframes twinkle { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+
+        .warp-speed .gleam-star {
+            animation: warpDrive 0.5s ease-in forwards !important;
+        }
+        @keyframes warpDrive {
+            to {
+                transform: scale(20) translateZ(1000px);
+                opacity: 0;
+            }
+        }
+
+        .shooting-heart {
+            position: absolute; color: #ff69b4; font-size: 24px; pointer-events: none; z-index: 60;
+            text-shadow: 0 0 10px #ff69b4;
+        }
+
+        #intro-text, #reaction-text {
+            text-align: center; font-weight: 600; font-size: 3.5rem; letter-spacing: -1px;
+            color: #fff; text-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
+            z-index: 10; position: relative; max-width: 90%; opacity: 0;
+            transition: opacity 1s ease-in-out;
+        }
+
+        #main-text {
+            text-align: center; font-size: 3.2rem; font-weight: 800;
+            color: #fff; text-shadow: 0 5px 15px rgba(214, 51, 132, 0.4);
+            margin-bottom: 40px; z-index: 10; opacity: 0;
+            transition: opacity 2.5s ease-in;
+        }
+
+        .breathe-anim { animation: breathe 3s ease-in-out infinite; }
+        @keyframes breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+
+        .button-container { 
+            display: none; 
+            gap: 25px; 
+            z-index: 100; 
+            opacity: 0; 
+            transition: opacity 2s;
+            height: 80px;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #yes-btn { 
+            background: #ff69b4; padding: 20px 60px; border-radius: 50px; 
+            color: white; border: none; cursor: pointer; font-weight: bold; font-size: 1.3rem;
+            box-shadow: 0 10px 20px rgba(255, 105, 180, 0.4); 
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        #no-btn { 
+            background: #e63946; padding: 20px 60px; border-radius: 50px; 
+            color: white; border: none; cursor: pointer; font-weight: bold; font-size: 1.3rem;
+            box-shadow: 0 10px 20px rgba(230, 57, 70, 0.3); 
+            transition: all 0.4s ease-out; 
+            position: relative;
+        }
+
+        #error-box {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: #fff0f3; padding: 40px; border-radius: 30px; text-align: center;
+            box-shadow: 0 20px 50px rgba(255, 105, 180, 0.3); z-index: 10000;
+            display: none; width: 85%; max-width: 400px;
+            border: 4px dashed #ff69b4;
+        }
+        #error-box h2 { color: #d63384; margin-top: 0; font-size: 1.8rem; }
+        #error-box p { color: #7a5a6a; font-size: 1.1rem; line-height: 1.5; }
+        .ok-btn { 
+            background: #ff69b4; color: white; border: none; padding: 12px 40px; 
+            border-radius: 20px; font-weight: bold; cursor: pointer; margin-top: 15px;
+            box-shadow: 0 5px 15px rgba(255, 105, 180, 0.4);
+        }
+
+        #loading-zone { 
+            display: none; z-index: 100; width: 300px; text-align: center; 
+            transition: opacity 1s ease-out;
+        }
+        #progress-container { width: 100%; height: 20px; background: rgba(255,255,255,0.3); border-radius: 50px; position: relative; margin-top: 25px; overflow: visible; }
+        #progress-bar { width: 0%; height: 100%; background: #ff69b4; border-radius: 50px; transition: width 8s linear; }
+        
+        #loading-heart {
+            position: absolute;
+            left: 0%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+            transition: left 8s linear;
+            z-index: 101;
+        }
+
+        #envelope-scene { display: none; position: relative; z-index: 1000; perspective: 1500px; }
+        .envelope-wrapper { position: relative; width: 300px; height: 180px; background: #fff; border-radius: 0 0 10px 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .envelope-flap { 
+            position: absolute; top: 0; left: 0; width: 0; height: 0; 
+            border-left: 150px solid transparent; border-right: 150px solid transparent; 
+            border-top: 110px solid #ffccd5; transform-origin: top; 
+            transition: transform 0.6s ease; z-index: 30; 
+        }
+        .envelope-wrapper.open .envelope-flap { transform: rotateX(180deg); z-index: 10; }
+        .wax-seal { position: absolute; top: 80px; left: 50%; transform: translateX(-50%); width: 55px; height: 55px; background: #ff69b4; border-radius: 50%; z-index: 40; display: flex; justify-content: center; align-items: center; color: white; cursor: pointer; font-size: 1.5rem; transition: opacity 0.3s; }
+        .envelope-wrapper.open .wax-seal { opacity: 0; pointer-events: none; }
+        
+        #final-letter { 
+            position: absolute; top: 10px; left: 50%; transform: translateX(-50%); 
+            width: 260px; background: white; padding: 20px; z-index: 20; 
+            display: block; opacity: 0; border-radius: 5px; text-align: center; color:#333; 
+            box-shadow: 0 -5px 15px rgba(0,0,0,0.05); transition: transform 1s ease, opacity 0.5s ease;
+        }
+        .envelope-wrapper.open #final-letter { transform: translate(-50%, -120px); opacity: 1; }
+
+        #certificate { 
+            display: none; position: fixed; top: 50%; left: 50%; 
+            transform: translate(-50%, -150vh); 
+            background: #fff; 
+            padding: 40px; 
+            width: 380px; 
+            border: 15px double #ffd700; 
+            outline: 5px solid #ff69b4;
+            z-index: 3000; 
+            transition: transform 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            text-align: center; 
+            border-radius: 5px;
+            box-shadow: 0 0 50px rgba(255, 215, 0, 0.5), 0 20px 40px rgba(0,0,0,0.4);
+            color: #333;
+        }
+        #certificate.drop { transform: translate(-50%, -50%); }
+        .cert-header { font-family: 'Georgia', serif; font-size: 2.2rem; color: #ff69b4; text-transform: uppercase; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        .cert-body { text-align: left; margin: 25px 0; font-size: 1.2rem; line-height: 2; }
+        .cert-label { font-weight: bold; color: #ff69b4; text-transform: uppercase; display: inline-block; width: 90px; }
+        .cert-seal { width: 80px; height: 80px; background: #ff69b4; border-radius: 50%; margin: 20px auto 0; display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem; border: 4px solid #ffd700; box-shadow: 0 5px 10px rgba(0,0,0,0.2); }
+        .pink { color: #ff69b4; font-weight: bold; }
+
+        #hub-board {
+            position: fixed; top: 40px; left: 50%; transform: translateX(-50%);
+            background: white; border: 4px solid #ff69b4; padding: 15px 40px;
+            border-radius: 10px; color: #ff69b4; font-weight: 900; font-size: 2.5rem;
+            box-shadow: 0 8px 0 #ff69b4, 0 15px 30px rgba(255, 105, 180, 0.3);
+            z-index: 5500; display: none; letter-spacing: 2px;
+        }
+
+        .dashboard-wrapper { position: fixed; z-index: 5000; opacity: 0; visibility: hidden; top: 55%; left: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; gap: 20px; transition: opacity 1s ease; }
+        #unlock-dashboard-trigger:checked ~ .dashboard-wrapper { opacity: 1; visibility: visible; }
+        
+        .nav-btn { 
+            padding: 20px 60px; font-size: 1.3rem; background: white; color: #ff69b4; 
+            border: 3px solid #ff69b4; border-radius: 15px; cursor: pointer; font-weight: 800; 
+            text-align: center; margin: 10px; box-shadow: 0 6px 0 #ff69b4;
+            transition: all 0.2s;
+        }
+        .nav-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #ff69b4; }
+        
+        .full-view { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 6000; display: none; overflow-y: auto; padding-top: 80px; }
+        
+        #read-me-trigger:checked ~ #hub-board,
+        #reasons-trigger:checked ~ #hub-board,
+        #secret-trigger:checked ~ #hub-board,
+        #wheel-trigger:checked ~ #hub-board,
+        #market-trigger:checked ~ #hub-board,
+        #read-me-trigger:checked ~ .dashboard-wrapper,
+        #reasons-trigger:checked ~ .dashboard-wrapper,
+        #secret-trigger:checked ~ .dashboard-wrapper,
+        #wheel-trigger:checked ~ .dashboard-wrapper,
+        #market-trigger:checked ~ .dashboard-wrapper { display: none !important; }
+
+        #read-me-trigger:checked ~ #letter-view,
+        #reasons-trigger:checked ~ #reasons-view,
+        #secret-trigger:checked ~ #secret-view,
+        #wheel-trigger:checked ~ #wheel-view,
+        #market-trigger:checked ~ #market-view { display: block; background: inherit; }
+
+        .back-btn-top { position: fixed; top: 25px; left: 50%; transform: translateX(-50%); z-index: 7000; background: #e63946; color: white; padding: 10px 30px; border-radius: 50px; cursor: pointer; border: none; font-weight: bold; }
+        .scroll-paper { width: 85%; max-width: 500px; background: white; margin: 20px auto 60px; padding: 45px; border-radius: 15px; font-family: 'Georgia', serif; font-size: 1.1rem; line-height: 1.8; color: #333; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .view-trigger { display: none; }
+        
+        #blackout { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: black; z-index: 9999; display: none; opacity: 0; transition: opacity 5s ease-in-out; }
+
+        #not-done-text {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            z-index: 4000; text-align: center; display: none; pointer-events: none;
+            transition: opacity 1s ease;
+        }
+        #not-done-title {
+            color: #ff69b4; font-size: 3.5rem; font-weight: 800;
+            text-shadow: 0 0 20px rgba(255, 105, 180, 0.8);
+            margin: 0; opacity: 0; transition: opacity 1s ease;
+        }
+        #click-anywhere {
+            color: #fff; font-size: 1.5rem; margin-top: 10px;
+            opacity: 0; transition: opacity 1s ease;
+        }
+
+        #mango-hub-text {
+            position: fixed; top: -100px; left: 50%; transform: translateX(-50%);
+            z-index: 8000; color: #ff69b4; font-size: 4rem; font-weight: 900;
+            text-transform: uppercase; text-shadow: 0 0 20px #ff69b4, 0 0 40px #ff1493;
+            transition: top 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: none; white-space: nowrap;
+        }
+
+        .reasons-container {
+            width: 85%; max-width: 500px; background: white; margin: 20px auto; padding: 40px; border-radius: 20px; box-shadow: 0 15px 40px rgba(0,0,0,0.1); text-align: center; border: 3px solid #ff69b4;
+        }
+        #reason-display {
+            font-size: 1.6rem; font-weight: 800; color: #ff69b4; height: 120px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; line-height: 1.3;
+        }
+
+        /* Secret Vault Styles */
+        #secret-view { background: #000 !important; color: #0f0; font-family: 'Courier New', monospace; }
+        .vault-container {
+            width: 85%; max-width: 400px; margin: 100px auto; padding: 40px;
+            border: 2px solid #0f0; text-align: center; background: #050505;
+        }
+        .warning-text { color: #ff0000; font-weight: bold; margin-bottom: 20px; font-size: 1.2rem; }
+        #pass-input {
+            background: #222; border: 1px solid #0f0; color: #0f0; 
+            padding: 10px; width: 80%; margin-bottom: 20px; outline: none; text-align: center;
+        }
+        #goat-reveal { display: none; margin-top: 20px; }
+        .goat-emoji { font-size: 5rem; display: block; margin-bottom: 10px; }
+
+        /* Argument Wheel Styles */
+        .wheel-box { width: 350px; margin: 50px auto; position: relative; text-align: center; }
+        .wheel-container {
+            width: 300px; height: 300px; border-radius: 50%; border: 5px solid #ff69b4;
+            position: relative; overflow: hidden; transition: transform 4s cubic-bezier(0.1, 0, 0.1, 1);
+            background: #fff; margin: 0 auto;
+        }
+        .wheel-part {
+            position: absolute; width: 50%; height: 100%; transform-origin: 100% 50%;
+            display: flex; align-items: center; justify-content: center; font-weight: bold;
+            color: white; font-size: 1.5rem;
+        }
+        .part-1 { background: #ff69b4; transform: rotate(0deg); } 
+        .part-2 { background: #333; transform: rotate(180deg); }   
+        .pointer {
+            position: absolute; top: -20px; left: 50%; transform: translateX(-50%);
+            width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent;
+            border-top: 30px solid #e63946; z-index: 100;
+        }
+
+        /* Stock Market Styles */
+        .market-container {
+            width: 90%; max-width: 500px; margin: 50px auto; background: #1a1a1a;
+            border-radius: 20px; padding: 30px; border: 3px solid #ff69b4; box-shadow: 0 0 30px rgba(255,105,180,0.2);
+            color: #fff; text-align: left;
+        }
+        .stock-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 15px; margin-bottom: 20px; }
+        .ticker-name { font-size: 2rem; font-weight: 900; color: #ff69b4; }
+        .stock-price { font-size: 2.5rem; font-weight: 800; color: #00ff88; font-family: monospace; }
+        .stock-change { color: #00ff88; font-size: 1.2rem; }
+        .sentiment-bar { height: 10px; background: #333; border-radius: 10px; margin: 20px 0; overflow: hidden; }
+        .sentiment-fill { height: 100%; width: 100%; background: linear-gradient(90deg, #ff69b4, #00ff88); }
+        .news-ticker { background: #000; padding: 10px; overflow: hidden; white-space: nowrap; border-radius: 10px; font-family: monospace; }
+        .news-content { display: inline-block; padding-left: 100%; animation: newsScroll 20s linear infinite; color: #ffd700; }
+        @keyframes newsScroll { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
+    </style>
+</head>
+<body>
+
+    <div id="blackout"></div>
+    <div id="nebula" class="nebula-bg"></div>
+    <div id="stars" class="stars-container"></div>
+    <div id="gleam-sky"></div>
+
+    <input type="radio" name="view" id="reset-trigger" class="view-trigger" checked>
+    <input type="checkbox" id="unlock-dashboard-trigger" class="view-trigger">
+    <input type="radio" name="view" id="read-me-trigger" class="view-trigger">
+    <input type="radio" name="view" id="reasons-trigger" class="view-trigger">
+    <input type="radio" name="view" id="secret-trigger" class="view-trigger">
+    <input type="radio" name="view" id="wheel-trigger" class="view-trigger">
+    <input type="radio" name="view" id="market-trigger" class="view-trigger">
+
+    <div id="hub-board">MANGO HUB</div>
+
+    <div id="intro-text"></div>
+    <div id="reaction-text"></div>
+    <h1 id="main-text">Will you be my valentine?</h1>
+    
+    <div class="button-container" id="btn-cont">
+        <button id="yes-btn" onclick="saidYes()">Yes</button>
+        <button id="no-btn" onclick="saidNo()" onmouseover="handleNoHover()">No</button>
+    </div>
+
+    <div id="error-box">
+        <h2>💖 ATTENTION 💖</h2>
+        <p>User has clicked NO too many times...<br><br><b>STARTING EMERGENCY ROMANTIC MODE</b></p>
+        <button class="ok-btn" onclick="closeError()">OK</button>
+    </div>
+
+    <div id="loading-zone">
+        <h2 style="color:white;">Processing Acceptance...</h2>
+        <div id="progress-container">
+            <div id="progress-bar"></div>
+            <div id="loading-heart">❤️</div>
+        </div>
+    </div>
+
+    <div id="envelope-scene">
+        <div class="envelope-wrapper" id="env">
+            <div class="envelope-flap"></div>
+            <div id="final-letter">
+                Hey zuzi i see that you accepted the valentines proposal<br><br>
+                Im not done yet click me again to see whats next<br><br>
+                i love you <span class="pink">❤️</span>
+            </div>
+            <div class="wax-seal" onclick="openEnvelope(event)">❤</div>
+        </div>
+    </div>
+
+    <div id="certificate">
+        <div class="cert-header">Certificate of Love</div>
+        <div class="cert-body">
+            <div><span class="cert-label">Name :</span> ZUZI (MANGO)</div>
+            <div><span class="cert-label">Date :</span> Today</div>
+            <div><span class="cert-label">Status :</span> Forever Yours ❤️</div>
+            <div style="margin-top: 15px; border-top: 1px dashed #ccc; padding-top: 10px;">
+                <span class="cert-label">Note :</span> I love you always forever and after
+            </div>
+        </div>
+        <div class="cert-seal">❤</div>
+    </div>
+
+    <div id="not-done-text">
+        <div id="not-done-title">IM NOT DONE YET</div>
+        <div id="click-anywhere">click anywhere</div>
+    </div>
+
+    <div id="mango-hub-text">ENTERING MANGO HUB</div>
+
+    <div class="dashboard-wrapper">
+        <label for="read-me-trigger" class="nav-btn">READ ME 💌</label>
+        <label for="reasons-trigger" class="nav-btn">REASONS WHY 💖</label>
+        <label for="market-trigger" class="nav-btn">STOCK MARKET 📈</label>
+        <label for="wheel-trigger" class="nav-btn">ARGUMENT SOLVER ⚖️</label>
+        <label for="secret-trigger" class="nav-btn" style="background: #333; color: #ff0000; border-color: #ff0000; box-shadow: 0 6px 0 #900;">DO NOT CLICK 🚫</label>
+    </div>
+
+    <div id="letter-view" class="full-view">
+        <label for="reset-trigger" class="back-btn-top">← BACK</label>
+        <div class="scroll-paper">
+            Heyyyy mangooooo you said yes to be my valentine!!!!!!! im sooo happyyyyyyyy. I hope i can make the coming days in our relationship good days and not disappoint you at all, i will really try to do that althought no promises that i wont annoy you cuz if dont then who else will. Anyways. I want you to know i love you alot take care of yourself, you are doing well, im proud of you for getting that job you got finally after trying so much. Also i really like your hair it looks very very very very good like actually really good. <br><br>
+            I hope you like this what i made it took quiet a few days to make i have no clue how i didnt let you know. I mean at the end you would have thought something since i was almost done so yeahhhh. But i really hope you like this. Dont ask why i can't do something normal for valentines day even last year i made that godly cringe of a video which was actually good but yeah. <br><br>
+            Thank you mango for always loving and supporting me thru eveyrthing we go thru and most of all forgiving me for all that i do wrong no one else would i mean they would rather kill me than forgive me but you dont i mean idk maybe in person you would have killed me but for right now you didnt :). Thank you for saying yes to this proposal and i really hope that i can make these two days our anniversary and valentines day good for you. <br><br>
+            I love you soooo much always forever and after to the moon and backkkk I miss you soooooo much toooo. <br><br>
+            I love youuu <span class="pink">❤️ ❤️ ❤️ ❤️</span>
+        </div>
+    </div>
+
+    <div id="reasons-view" class="full-view">
+        <label for="reset-trigger" class="back-btn-top">← BACK</label>
+        <h2 style="text-align: center; color: #ff69b4; margin-top: 20px;">Reasons why I love you</h2>
+        <div class="reasons-container">
+            <div id="reason-display">Click the button below...</div>
+            <button class="nav-btn" style="margin: 0 auto; display: block;" onclick="nextReason()">CLICK ME</button>
+        </div>
+    </div>
+
+    <div id="market-view" class="full-view">
+        <label for="reset-trigger" class="back-btn-top">← BACK</label>
+        <div class="market-container">
+            <div class="stock-header">
+                <div>
+                    <span class="ticker-name">$MANGO</span>
+                    <div style="font-size: 0.8rem; color: #777;">MANGO LOVE INDEX</div>
+                </div>
+                <div style="text-align: right;">
+                    <div id="live-price" class="stock-price">1,204,500.00</div>
+                    <div class="stock-change">▲ +99,999.8% (ALL TIME)</div>
+                </div>
+            </div>
+            <div style="font-weight: bold; margin-bottom: 5px;">Market Sentiment: Aggressively Bullish</div>
+            <div class="sentiment-bar"><div class="sentiment-fill"></div></div>
+            <div class="news-ticker">
+                <div class="news-content">
+                    BREAKING: $MANGO stock hits new all-time high... ANALYSTS PREDICT INFINITE GROWTH... "Too cute to sell," says local investor... HOODIE THEFT CRIMES UP BY 40%... ZUZI IS OFFICIALLY THE GOAT...
+                </div>
+            </div>
+            <p style="font-size: 0.8rem; color: #777; margin-top: 20px;">* Disclaimer: This stock is too valuable to ever be sold on any exchange.</p>
+        </div>
+    </div>
+
+    <div id="wheel-view" class="full-view">
+        <label for="reset-trigger" class="back-btn-top">← BACK</label>
+        <h2 style="text-align: center; color: #ff69b4; margin-top: 20px;">Who is right?</h2>
+        <div class="wheel-box">
+            <div class="pointer"></div>
+            <div class="wheel-container" id="argument-wheel">
+                <div class="wheel-part part-1">RIGHT</div>
+                <div class="wheel-part part-2">WRONG</div>
+            </div>
+            <button class="nav-btn" style="margin-top: 30px;" onclick="spinWheel()">SPIN FOR TRUTH</button>
+        </div>
+    </div>
+
+    <div id="secret-view" class="full-view">
+        <label for="reset-trigger" class="back-btn-top">← EXIT AREA</label>
+        <div class="vault-container">
+            <div id="vault-entry">
+                <div class="warning-text">ACCESS DENIED: Zuzi isn't allowed here.</div>
+                <p>(Password is mango123)</p>
+                <input type="text" id="pass-input" placeholder="ENTER PASSWORD">
+                <br>
+                <button class="nav-btn" style="font-size: 1rem; padding: 10px 30px;" onclick="checkPassword()">UNLOCK</button>
+            </div>
+            
+            <div id="goat-reveal">
+                <span class="goat-emoji">🐐</span>
+                <div style="font-size: 1.5rem; color: #fff;">i told you not to come here</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const intros = ["Welcome", "I need to ask you an important question", "Before that i need to say", "no one else has done this", "this is what happens if i let my brain run randomly"];
+        const noTexts = ["Are you sure?", "Really?", "Stop clicking this", "Come on just click yes", "Please", "Buby stop", "Im warning you", "Last chance", "Okay you asked for it"];
+        
+        const reasons = [
+            "your smile", "your hair", "your laugh", "your evil laugh", "your personalities", 
+            "your love", "your kindness", "the way you care", "the way you look at me", 
+            "the things you say to me", "your good and bad side", "your eyes", "your nose", 
+            "your body", "your muscles", "your generosity", "they way you pronounce toxicity", 
+            "the way you are smart", "the way you think of our future", 
+            "the way you are not a part of this generation", "the way you are not human"
+        ];
+        let availableReasons = [...reasons];
+
+        let noCount = 0, chaseCount = 0, isMoving = false, isAccepted = false, stage = 0;
+        let starInterval, marketInterval;
+        let wheelRotation = 0;
+        let currentStockPrice = 1204500.00;
+
+        function updateStock() {
+            const priceEl = document.getElementById('live-price');
+            // Add a small random increment to make it "tick" upwards
+            const change = (Math.random() * 50) - 10; // Mostly positive
+            currentStockPrice += change;
+            priceEl.innerText = currentStockPrice.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            // Pulse color effect
+            priceEl.style.color = change > 0 ? '#00ff88' : '#ff4444';
+            setTimeout(() => { priceEl.style.color = '#00ff88'; }, 500);
+        }
+
+        function spinWheel() {
+            const wheel = document.getElementById('argument-wheel');
+            wheelRotation += 1440 + (90 - (wheelRotation % 360)); 
+            wheel.style.transform = `rotate(${wheelRotation}deg)`;
+        }
+
+        function checkPassword() {
+            const input = document.getElementById('pass-input').value;
+            const secretPass = "mango123";
+            if(input.toLowerCase() === secretPass.toLowerCase()) {
+                document.getElementById('vault-entry').style.display = 'none';
+                document.getElementById('goat-reveal').style.display = 'block';
+            } else {
+                alert("WRONG. GO AWAY.");
+            }
+        }
+
+        function initGleamSky() {
+            const sky = document.getElementById('gleam-sky');
+            sky.innerHTML = ''; 
+            for(let i=0; i<150; i++) {
+                const star = document.createElement('div');
+                star.className = 'gleam-star';
+                star.style.width = Math.random() * 3 + 'px';
+                star.style.height = star.style.width;
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 5 + 's';
+                sky.appendChild(star);
+            }
+        }
+
+        function spawnShootingHeart() {
+            const sky = document.getElementById('gleam-sky');
+            if (sky.style.display === 'none') return;
+            const heart = document.createElement('div');
+            heart.className = 'shooting-heart';
+            heart.innerHTML = '❤';
+            const startX = Math.random() * 100;
+            const startY = Math.random() * 100;
+            const angle = Math.random() * 360;
+            heart.style.left = startX + 'vw';
+            heart.style.top = startY + 'vh';
+            sky.appendChild(heart);
+            const animation = heart.animate([
+                { transform: `rotate(${angle}deg) translateX(0) scale(1)`, opacity: 1 },
+                { transform: `rotate(${angle}deg) translateX(500px) scale(0)`, opacity: 0 }
+            ], { duration: 2000, easing: 'ease-out' });
+            animation.onfinish = () => heart.remove();
+        }
+
+        function createHeart() {
+            if(!document.body.classList.contains('pink-mode') && !document.body.classList.contains('factory-mode')) return;
+            const heart = document.createElement('div');
+            heart.classList.add('heart-particle');
+            heart.innerHTML = '❤';
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.animationDuration = (Math.random() * 3 + 4) + 's';
+            document.body.appendChild(heart);
+            setTimeout(() => heart.remove(), 6000);
+        }
+
+        async function runIntro() {
+            const div = document.getElementById('intro-text');
+            for (let i = 0; i < intros.length; i++) {
+                div.innerText = intros[i]; div.style.opacity = 1;
+                await new Promise(r => setTimeout(r, 2500));
+                div.style.opacity = 0;
+                await new Promise(r => setTimeout(r, 1500));
+            }
+            const blackout = document.getElementById('blackout');
+            blackout.style.display = 'block';
+            setTimeout(() => { blackout.style.opacity = 1; }, 10);
+            await new Promise(r => setTimeout(r, 2500));
+            document.getElementById('nebula').style.display = 'none';
+            document.getElementById('stars').style.display = 'none';
+            document.body.classList.add('pink-mode');
+            setInterval(createHeart, 300);
+            div.style.display = 'none'; blackout.style.opacity = 0;
+            setTimeout(() => {
+                blackout.style.display = 'none';
+                const mainText = document.getElementById('main-text');
+                const btnCont = document.getElementById('btn-cont');
+                mainText.style.display = 'block'; mainText.classList.add('breathe-anim');
+                btnCont.style.display = 'flex';
+                setTimeout(() => { mainText.style.opacity = 1; btnCont.style.opacity = 1; }, 100);
+            }, 2000);
+        }
+
+        function saidNo() {
+            if(isAccepted) return;
+            if(noCount >= noTexts.length && chaseCount >= 10) {
+                const noBtn = document.getElementById('no-btn');
+                const yesBtn = document.getElementById('yes-btn');
+                const mt = document.getElementById('main-text');
+                noBtn.style.transition = 'all 1.2s ease-in';
+                noBtn.style.transform = 'translateY(100vh) rotate(180deg)';
+                noBtn.style.opacity = '0';
+                setTimeout(() => {
+                    noBtn.style.display = 'none';
+                    mt.innerText = "Now theres no button you can only click yes";
+                    yesBtn.innerText = "YES!!!"; 
+                    yesBtn.style.position = "fixed"; 
+                    yesBtn.style.left="50%"; 
+                    yesBtn.style.top="60%"; 
+                    yesBtn.style.transform="translate(-50%,-50%) scale(1.5)";
+                }, 1200);
+                return;
+            }
+            noCount++;
+            const noBtn = document.getElementById('no-btn');
+            if (noCount <= noTexts.length) {
+                noBtn.innerText = noTexts[noCount - 1];
+            }
+            if (noCount === noTexts.length) {
+                setTimeout(() => {
+                    document.getElementById('error-box').style.display = 'block';
+                }, 400);
+            }
+        }
+
+        function handleNoHover() {
+            if(!isMoving || chaseCount >= 10) return;
+            chaseCount++;
+            const noBtn = document.getElementById('no-btn');
+            if(noBtn.style.position !== 'fixed') {
+                noBtn.style.position = 'fixed';
+                noBtn.style.margin = '0';
+                noBtn.style.zIndex = '1000';
+            }
+            const randomX = Math.random() * (window.innerWidth - 150);
+            const randomY = Math.random() * (window.innerHeight - 80);
+            noBtn.style.left = randomX + 'px';
+            noBtn.style.top = randomY + 'px';
+            if(chaseCount === 10) {
+                setTimeout(() => {
+                    noBtn.style.position = 'relative';
+                    noBtn.style.left = 'auto';
+                    noBtn.style.top = 'auto';
+                    noBtn.innerText = "Please dont make me do this";
+                }, 600);
+            }
+        }
+
+        function closeError() {
+            document.getElementById('error-box').style.display = 'none';
+            isMoving = true; 
+        }
+
+        async function saidYes() {
+            isAccepted = true;
+            const mainText = document.getElementById('main-text');
+            const btnCont = document.getElementById('btn-cont');
+            const reaction = document.getElementById('reaction-text');
+            const blackout = document.getElementById('blackout');
+            mainText.style.opacity = 0;
+            btnCont.style.opacity = 0;
+            await new Promise(r => setTimeout(r, 1000));
+            mainText.style.display = 'none';
+            btnCont.style.display = 'none';
+            if (noCount <= 3 && chaseCount === 0) {
+                reaction.innerText = "Wait what? No fight? Just yes like that? I like it";
+            } else {
+                reaction.innerText = "HAHA, finally, made me nervous there";
+            }
+            reaction.style.opacity = 1;
+            await new Promise(r => setTimeout(r, 3000));
+            blackout.style.display = 'block';
+            setTimeout(() => { blackout.style.opacity = 1; }, 50);
+            await new Promise(r => setTimeout(r, 5000));
+            reaction.style.opacity = 0;
+            initGleamSky();
+            document.getElementById('gleam-sky').style.display = 'block';
+            for(let i=0; i<10; i++) spawnShootingHeart();
+            starInterval = setInterval(spawnShootingHeart, 800); 
+            blackout.style.opacity = 0;
+            await new Promise(r => setTimeout(r, 5000));
+            blackout.style.display = 'none';
+            const loadingZone = document.getElementById('loading-zone');
+            const progressBar = document.getElementById('progress-bar');
+            const loadingHeart = document.getElementById('loading-heart');
+            loadingZone.style.display = 'block';
+            setTimeout(() => { 
+                progressBar.style.width = '100%'; 
+                loadingHeart.style.left = '100%';
+            }, 100);
+            await new Promise(r => setTimeout(r, 8000));
+            loadingZone.style.opacity = '0';
+            setTimeout(() => {
+                loadingZone.style.display = 'none';
+                document.getElementById('envelope-scene').style.display = 'block';
+            }, 1000);
+        }
+
+        function openEnvelope(e) {
+            document.getElementById('env').classList.add('open');
+            setTimeout(() => {
+                document.body.onclick = async () => {
+                    if(stage === 0) {
+                        document.getElementById('envelope-scene').style.display = 'none';
+                        const cert = document.getElementById('certificate');
+                        cert.style.display = 'block';
+                        setTimeout(() => { cert.classList.add('drop'); }, 100);
+                        stage = 1;
+                    } else if (stage === 1) {
+                        document.getElementById('certificate').style.display = 'none';
+                        const container = document.getElementById('not-done-text');
+                        const title = document.getElementById('not-done-title');
+                        const sub = document.getElementById('click-anywhere');
+                        container.style.display = 'block';
+                        setTimeout(() => { title.style.opacity = '1'; }, 100);
+                        setTimeout(() => { sub.style.opacity = '1'; }, 2100);
+                        stage = 2;
+                    } else if (stage === 2) {
+                        stage = 99; 
+                        document.getElementById('not-done-text').style.opacity = '0';
+                        setTimeout(() => { document.getElementById('not-done-text').style.display = 'none'; }, 1000);
+                        document.getElementById('gleam-sky').classList.add('warp-speed');
+                        const hubText = document.getElementById('mango-hub-text');
+                        hubText.style.display = 'block';
+                        setTimeout(() => { hubText.style.top = '50%'; hubText.style.transform = 'translate(-50%, -50%)'; }, 100);
+                        setTimeout(() => {
+                            const blackout = document.getElementById('blackout');
+                            blackout.style.display = 'block';
+                            blackout.style.transition = 'opacity 4s ease-in-out';
+                            setTimeout(() => { blackout.style.opacity = '1'; }, 50);
+                        }, 3000);
+                        setTimeout(() => {
+                            hubText.style.display = 'none';
+                            clearInterval(starInterval);
+                            document.getElementById('gleam-sky').style.display = 'none';
+                            document.body.classList.remove('pink-mode');
+                            document.body.classList.add('factory-mode');
+                            document.getElementById('hub-board').style.display = 'block';
+                            document.getElementById('unlock-dashboard-trigger').checked = true;
+                            document.getElementById('blackout').style.opacity = '0';
+                            setTimeout(() => { document.getElementById('blackout').style.display = 'none'; }, 2000);
+                            stage = 3;
+                            document.body.onclick = null;
+                            // Start stock market updates once hub is unlocked
+                            marketInterval = setInterval(updateStock, 2000);
+                        }, 7000);
+                    }
+                };
+            }, 1500);
+        }
+
+        function nextReason() {
+            const display = document.getElementById('reason-display');
+            if (availableReasons.length === 0) {
+                availableReasons = [...reasons];
+            }
+            const randomIndex = Math.floor(Math.random() * availableReasons.length);
+            const chosenReason = availableReasons.splice(randomIndex, 1)[0];
+            display.innerText = chosenReason;
+        }
+
+        window.onload = runIntro;
+    </script>
+</body>
+</html>
